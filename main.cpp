@@ -56,6 +56,8 @@ int main()
         n.showMat(val);
     }
 
+    // Perfomance
+
     std::cin.get();
     return 0;
 }
