@@ -1,12 +1,8 @@
 #include "neuralnetwork.hpp"
 
-NeuralNetwork::NeuralNetwork(int input, int hidden, int output, float lr)
+NeuralNetwork::NeuralNetwork(int input, int hidden, int output, float lr, std::string hiddenActivation, std::string outputActivation) :
+    m_numInput(input), m_numHidden(hidden), m_numOutput(output), m_lr(lr), m_hiddenActivation(hiddenActivation), m_outputActivation(outputActivation)
 {
-    m_numInput = input;
-    m_numHidden = hidden;
-    m_numOutput = output;
-    m_lr = lr;
-
     // Weight initialization
     srand((unsigned)time(NULL));
 
@@ -33,11 +29,17 @@ void NeuralNetwork::train(std::vector<std::vector<float>> input, std::vector<std
 {
     // Forward pass
     std::vector<std::vector<float>> hidden = dotProduct(input, m_wih);
-    activation(hidden);
+    if(m_hiddenActivation == "sigmoid")
+        sigmoid(hidden);
+    else if(m_hiddenActivation == "relu")
+        relu(hidden);
 
     // Output
     std::vector<std::vector<float>> output = dotProduct(hidden, m_who);
-    activation(output);
+    if(m_outputActivation == "sigmoid")
+        sigmoid(output);
+    else if(m_outputActivation == "relu")
+        relu(output);
     std::cout << "Outputs" << std::endl;
     showMat(output);
 
@@ -50,8 +52,8 @@ void NeuralNetwork::train(std::vector<std::vector<float>> input, std::vector<std
     std::vector<std::vector<float>> hiddenError = dotProduct(m_who, transpose(error));
 
     // Backpropagation
-    backpropagation(m_who, error, output, hidden, m_lr); // Output
-    backpropagation(m_wih, transpose(hiddenError), hidden, input, m_lr); // Input
+    backpropagation(m_who, error, output, hidden, m_lr, m_outputActivation); // Output
+    backpropagation(m_wih, transpose(hiddenError), hidden, input, m_lr, m_hiddenActivation); // Input
 
     std::cout << "----------------" << std::endl;
 }
@@ -59,17 +61,29 @@ void NeuralNetwork::train(std::vector<std::vector<float>> input, std::vector<std
 std::vector<std::vector<float>> NeuralNetwork::query(std::vector<std::vector<float>> input, std::vector<std::vector<float>> target)
 {
     std::vector<std::vector<float>> hidden = dotProduct(input, m_wih);
-    activation(hidden);
+    if(m_hiddenActivation == "sigmoid")
+        sigmoid(hidden);
+    else if(m_hiddenActivation == "relu")
+        relu(hidden);
     
     std::vector<std::vector<float>> output = dotProduct(hidden, m_who);
-    activation(output);
+    if(m_outputActivation == "sigmoid")
+        sigmoid(output);
+    else if(m_outputActivation == "relu")
+        relu(output);
 
     return output;
 }
 
-void NeuralNetwork::backpropagation(std::vector<std::vector<float>> &weight, std::vector<std::vector<float>> error, std::vector<std::vector<float>> output, std::vector<std::vector<float>> input, float lr)
+void NeuralNetwork::backpropagation(std::vector<std::vector<float>> &weight, std::vector<std::vector<float>> error, std::vector<std::vector<float>> output, std::vector<std::vector<float>> input, float lr, std::string activation)
 {
-    desactivation(output);
+   std::cout << activation << std::endl;
+
+    if(activation == "sigmoid")
+        sigmoidDerivative(output);
+    else if(activation == "relu")
+        reluDerivative(output);
+
     std::vector<std::vector<float>> tmpConst = elementWise(error, output);
 
     std::vector<std::vector<float>> der = weight;
@@ -95,7 +109,17 @@ float NeuralNetwork::sigmoidDerivative(float x)
     return (x * (1 - x));
 }
 
-void NeuralNetwork::activation(std::vector<float> &m)
+float NeuralNetwork::relu(float x)
+{
+    return (x < 0) ? 0.0f : x;
+}
+
+float NeuralNetwork::reluDerivative(float x)
+{
+    return (x < 0) ? 0.0f : 1;
+}
+
+void NeuralNetwork::sigmoid(std::vector<float> &m)
 {
     for(int i = 0; i < (int)m.size(); i++)
     {
@@ -103,7 +127,7 @@ void NeuralNetwork::activation(std::vector<float> &m)
     }
 }
 
-void NeuralNetwork::activation(std::vector<std::vector<float>> &m)
+void NeuralNetwork::sigmoid(std::vector<std::vector<float>> &m)
 {
     for(int i = 0; i < (int)m.size(); i++)
     {
@@ -114,7 +138,7 @@ void NeuralNetwork::activation(std::vector<std::vector<float>> &m)
     }
 }
 
-void NeuralNetwork::desactivation(std::vector<float> &m)
+void NeuralNetwork::sigmoidDerivative(std::vector<float> &m)
 {
     for(int i = 0; i < (int)m.size(); i++)
     {
@@ -122,13 +146,35 @@ void NeuralNetwork::desactivation(std::vector<float> &m)
     }
 }
 
-void NeuralNetwork::desactivation(std::vector<std::vector<float>> &m)
+void NeuralNetwork::sigmoidDerivative(std::vector<std::vector<float>> &m)
 {
     for(int i = 0; i < (int)m.size(); i++)
     {
         for(int j = 0; j < (int)m[0].size(); j++)
         {
             m[i][j] = sigmoidDerivative(m[i][j]);
+        }
+    }
+}
+
+void NeuralNetwork::relu(std::vector<std::vector<float>> &m)
+{
+    for(int i = 0; i < (int)m.size(); i++)
+    {
+        for(int j = 0; j < (int)m[0].size(); j++)
+        {
+            m[i][j] = relu(m[i][j]);
+        }
+    }
+}
+
+void NeuralNetwork::reluDerivative(std::vector<std::vector<float>> &m)
+{
+    for(int i = 0; i < (int)m.size(); i++)
+    {
+        for(int j = 0; j < (int)m[0].size(); j++)
+        {
+            m[i][j] = reluDerivative(m[i][j]);
         }
     }
 }

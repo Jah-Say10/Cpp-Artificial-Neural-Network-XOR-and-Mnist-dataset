@@ -16,7 +16,7 @@
 
 int main()
 {
-    NeuralNetwork n(3, 4, 1, .2);
+    NeuralNetwork n(3, 4, 1, .1, "sigmoid", "sigmoid");
 
     // Input data
     std::vector<std::vector<float>> input =
@@ -36,7 +36,7 @@ int main()
         {0.0f}
     };
 
-    const int epochs = 3000;
+    const int epochs = 5000;
     for(int e = 0; e < epochs; e++)
     {
         std::cout << "Epochs: " << e+1 << std::endl;

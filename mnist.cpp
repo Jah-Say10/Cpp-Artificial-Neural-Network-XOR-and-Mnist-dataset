@@ -16,7 +16,7 @@
 
 int main()
 {
-    NeuralNetwork n(784, 100, 10, .2);
+    NeuralNetwork n(784, 100, 10, .1, "relu", "sigmoid");
 
     // Input data
     std::vector<std::vector<float>> mninst = getFromCSV("data/mnist_train_100.csv", ',');
@@ -40,7 +40,7 @@ int main()
         }
     }
 
-    const int epochs = 2;
+    const int epochs = 5;
     for(int e = 0; e < epochs; e++)
     {
         std::cout << "Epochs: " << e+1 << std::endl;
@@ -73,7 +73,7 @@ int main()
 
     for(int i = 0; i < (int)inputTest.size(); i++)
     {
-        std::cout << "Output" << std::endl;
+        std::cout << "Target" << std::endl;
         n.showMat(targetTest[i]);
 
         std::vector<std::vector<float>> val = n.query(make2d(inputTest[i]), make2d(targetTest[i]));

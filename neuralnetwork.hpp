@@ -13,22 +13,29 @@ class NeuralNetwork
         int m_numOutput;
         float m_lr = .1f;
 
+        std::string m_hiddenActivation;
+        std::string m_outputActivation;
+
         std::vector<std::vector<float>> m_wih;
         std::vector<std::vector<float>> m_who;
 
         float sigmoid(float x);
         float sigmoidDerivative(float x);
-        void activation(std::vector<float> &m);
-        void activation(std::vector<std::vector<float>> &m);
-        void desactivation(std::vector<float> &m);
-        void desactivation(std::vector<std::vector<float>> &m);
+        float relu(float x);
+        float reluDerivative(float x);
+        void sigmoid(std::vector<float> &m);
+        void sigmoid(std::vector<std::vector<float>> &m);
+        void sigmoidDerivative(std::vector<float> &m);
+        void sigmoidDerivative(std::vector<std::vector<float>> &m);
+        void relu(std::vector<std::vector<float>> &m);
+        void reluDerivative(std::vector<std::vector<float>> &m);
 
     public:
-        NeuralNetwork(int input, int hidden, int output, float lr);
+        NeuralNetwork(int input, int hidden, int output, float lr, std::string hiddenActivation, std::string outputActivation);
 
         void train(std::vector<std::vector<float>> input, std::vector<std::vector<float>> target);
         std::vector<std::vector<float>> query(std::vector<std::vector<float>> input, std::vector<std::vector<float>> target);
-        void backpropagation(std::vector<std::vector<float>> &weight, std::vector<std::vector<float>> error, std::vector<std::vector<float>> output, std::vector<std::vector<float>> input, float lr);
+        void backpropagation(std::vector<std::vector<float>> &weight, std::vector<std::vector<float>> error, std::vector<std::vector<float>> output, std::vector<std::vector<float>> input, float lr, std::string activation);
 
         std::vector<std::vector<float>> dotProduct(std::vector<std::vector<float>> m1, std::vector<std::vector<float>> m2);
         std::vector<float> dotProduct(std::vector<std::vector<float>> m, std::vector<float> v);
